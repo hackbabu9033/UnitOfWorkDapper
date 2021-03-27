@@ -10,7 +10,7 @@ namespace DapperUnitOfWork
     {
         static void Main(string[] args)
         {
-            var unitOfWork = new UnitOfWork();
+            //var unitOfWork = new UnitOfWork();
             var cateRepo = new Repository<Categories>();
             Console.WriteLine("aaa");
 

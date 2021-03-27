@@ -37,6 +37,23 @@ namespace DapperUnitOfWork
             dBConfig = _dBConfig;
         }
 
+        public IRepository<T> Repository<T>() where T:BaseEntity
+        {
+            var type = typeof(T);
+            object existedRepository;
+            if (_repositories.TryGetValue(type, out existedRepository))
+            {
+                return (IRepository<T>)existedRepository;
+            }
+            else
+            {
+                // hack : 用Di來resolve想要的repository
+                // hack：因此需要先設定repository的di
+                //var repo = Activator.CreateInstance();
+            }
+        }
+
+
 
         public void SaveChange()
         {
