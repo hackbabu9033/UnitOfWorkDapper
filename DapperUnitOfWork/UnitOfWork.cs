@@ -1,26 +1,31 @@
 ﻿using DapperUnitOfWork.Config;
 using DapperUnitOfWork.DAO;
 using DapperUnitOfWork.Repository;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Text;
 using System.Transactions;
+using Unity;
+using Unity.Injection;
 
 namespace DapperUnitOfWork
 {
+
     public class UnitOfWork: IDisposable
     {
+        private readonly UnityContainer _container;
+
         private TransactionScope _transactionScope;
 
         private Dictionary<Type, object> _repositories;
 
-        private readonly SqlConnection _connection;
+        private SqlConnection _connection;
 
         private readonly DBConfig _dBConfig;
 
         private bool _disposed;
-
 
         private string _connectionString
         {
@@ -30,38 +35,46 @@ namespace DapperUnitOfWork
             }
         }
 
-        public UnitOfWork(DBConfig dBConfig)
+        public UnitOfWork(DBConfig dBConfig, UnityContainer container)
         {
             _transactionScope = new TransactionScope();
             _repositories = new Dictionary<Type, object>();
-            dBConfig = _dBConfig;
+            _dBConfig = dBConfig;
+            _container = container;
+            _connection = new SqlConnection(_connectionString);
         }
 
         public IRepository<T> Repository<T>() where T:BaseEntity
         {
-            var type = typeof(T);
+            var entityType = typeof(T);
+            var repoType = typeof(Repository<>);
             object existedRepository;
-            if (_repositories.TryGetValue(type, out existedRepository))
+            if (_repositories.TryGetValue(entityType, out existedRepository))
             {
                 return (IRepository<T>)existedRepository;
             }
             else
             {
-                // hack : 用Di來resolve想要的repository
-                // hack：因此需要先設定repository的di
-                //var repo = Activator.CreateInstance();
+                var constructedType = repoType.MakeGenericType(entityType);
+                var service = (IRepository<T>)Activator.CreateInstance(constructedType, new Object[] { _connection });
+                _repositories.Add(entityType, service);
+                return service;
             }
         }
 
-
-
+        /// <summary>
+        /// 直接所有對資料庫的異動
+        /// </summary>
         public void SaveChange()
         {
             try
             {
-                using (var scope = _transactionScope)
+                using (_transactionScope)
                 {
-                    scope.Complete();
+
+
+
+                    _transactionScope.Complete();
                 }
             }
             catch (Exception ex)
@@ -102,4 +115,5 @@ namespace DapperUnitOfWork
             _disposed = true;
         }
     }
+
 }

@@ -1,45 +1,55 @@
 ﻿using DapperUnitOfWork.DAO;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Text;
+using System.Transactions;
 
 namespace DapperUnitOfWork.Repository
 {
     public class Repository<T> : IRepository<T> where T : BaseEntity
     {
-        public void Add(T entity)
+        private readonly SqlConnection _connection;
+        public Repository(SqlConnection connection)
         {
-            throw new NotImplementedException();
+            _connection = connection;
         }
 
-        public IEnumerable<T> All()
+        public virtual void Add(T entity)
         {
-            throw new NotImplementedException();
+
         }
 
-        public void Delete(int id)
+        public virtual IEnumerable<T> All()
         {
-            throw new NotImplementedException();
+            return null;
         }
 
-        public void Delete(T entity)
+
+        public virtual void Delete(int id)
         {
-            throw new NotImplementedException();
+
         }
 
-        public T Find(int id)
+
+        public virtual void Delete(T entity)
         {
-            throw new NotImplementedException();
+
         }
 
-        public T FindByName(string name)
+        public virtual T Find(int id)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
-        public void Update(T entity)
+        public virtual T FindByName(string name)
         {
-            throw new NotImplementedException();
+            return null;
+        }
+
+        public virtual void Update(T entity)
+        {
+
         }
     }
 }

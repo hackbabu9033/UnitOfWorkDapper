@@ -7,7 +7,6 @@ namespace DapperUnitOfWork.Config
 {
     public class DBConfig
     {
-        //hack : use MSDI to inject IConfiguration
         private readonly IConfiguration _config;
 
         public DBConfig(IConfiguration config)
